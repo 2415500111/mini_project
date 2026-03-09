@@ -1,14 +1,3 @@
-"""
-PROJECT 25 — Real Estate Investment Analysis Tool
-AI-Powered Platform using Streamlit + Plotly + Anthropic
-
-Install dependencies:
-    pip install streamlit plotly pandas numpy anthropic
-
-Run:
-    streamlit run real_estate_tool.py
-"""
-
 import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
@@ -16,7 +5,6 @@ import pandas as pd
 import numpy as np
 from anthropic import Anthropic
 
-# ─── Page Config ──────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="PROJECT 25 · Real Estate AI",
     page_icon="🏢",
@@ -24,7 +12,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ─── Custom CSS ───────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;600;700&display=swap');
@@ -83,7 +70,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ─── Helpers ──────────────────────────────────────────────────────────────────
 def fmt_usd(n):
     if n < 0:
         return f"-${abs(n):,.0f}"
@@ -98,7 +84,6 @@ def calc_metrics(price, down_pct, rate, years, rent, expenses, appreciation, vac
     monthly_rate = rate / 12
     n = years * 12
 
-    # Mortgage payment
     if monthly_rate == 0:
         mortgage = loan / n
     else:
@@ -110,7 +95,6 @@ def calc_metrics(price, down_pct, rate, years, rent, expenses, appreciation, vac
     cash_on_cash = annual_cf / down if down > 0 else 0
     cap_rate = ((effective_rent - expenses) * 12) / price if price > 0 else 0
 
-    # IRR via Newton's method (10-year horizon)
     cash_flows = [-down]
     for y in range(1, 11):
         rent_y = effective_rent * (1.02 ** (y - 1))
@@ -133,7 +117,6 @@ def calc_metrics(price, down_pct, rate, years, rent, expenses, appreciation, vac
         if abs(npv) < 0.01:
             break
 
-    # 10-year projection
     projection = []
     for y in range(11):
         prop_val = price * ((1 + appreciation) ** y)
@@ -179,15 +162,13 @@ PLOT_LAYOUT = dict(
     legend=dict(bgcolor="#111", bordercolor="#2a2a2a", borderwidth=1),
 )
 
-# ─── Sidebar Inputs ───────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown('<div class="header-eyebrow">PROJECT 25 · AI-POWERED</div>', unsafe_allow_html=True)
     st.markdown('<div class="header-title">Real Estate<br><em>Analysis Platform</em></div>', unsafe_allow_html=True)
     st.markdown("---")
 
     st.subheader("🏠 Property Parameters")
-    price = st.slider("Purchase Price ($)", 100_000, 2_000_000, 450_000, 10_000,
-                      format="$%d")
+    price = st.slider("Purchase Price ($)", 100_000, 2_000_000, 450_000, 10_000, format="$%d")
     down_pct = st.slider("Down Payment (%)", 5, 50, 20) / 100
     rate = st.slider("Mortgage Rate (%)", 3.0, 12.0, 7.0, 0.25) / 100
     years = st.select_slider("Loan Term (Years)", [10, 15, 20, 25, 30], 30)
@@ -200,15 +181,12 @@ with st.sidebar:
     appreciation = st.slider("Annual Appreciation (%)", 0.0, 12.0, 4.0, 0.5) / 100
 
     st.markdown("---")
-    api_key = st.text_input("🔑 Anthropic API Key (for AI)", type="password",
-                            help="Required for AI analysis features")
+    api_key = st.text_input("🔑 Anthropic API Key (for AI)", type="password", help="Required for AI analysis features")
 
-# ─── Calculate Metrics ────────────────────────────────────────────────────────
 m = calc_metrics(price, down_pct, rate, years, rent, expenses, appreciation, vacancy)
 score = investment_score(m)
 score_color = "#4ade80" if m["cash_on_cash"] > 0.06 else "#c8a96e" if m["cash_on_cash"] > 0 else "#f87171"
 
-# ─── Header ───────────────────────────────────────────────────────────────────
 col_title, col_score = st.columns([3, 1])
 with col_title:
     st.markdown('<div class="header-eyebrow">PROJECT 25 · AI-POWERED PLATFORM</div>', unsafe_allow_html=True)
@@ -224,20 +202,13 @@ with col_score:
 
 st.markdown("---")
 
-# ─── Tabs ─────────────────────────────────────────────────────────────────────
 tab1, tab2, tab3, tab4 = st.tabs(["📊 Analysis", "📈 Projections", "⚡ Scenarios", "🏦 Portfolio"])
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 1 — ANALYSIS
-# ══════════════════════════════════════════════════════════════════════════════
 with tab1:
-    # Key Metrics Row
     c1, c2, c3, c4, c5, c6 = st.columns(6)
     metrics_cfg = [
-        (c1, "Monthly Cash Flow", fmt_usd(m["net_monthly"]),
-         "#4ade80" if m["net_monthly"] >= 0 else "#f87171"),
-        (c2, "Annual Cash Flow", fmt_usd(m["annual_cf"]),
-         "#c8a96e"),
+        (c1, "Monthly Cash Flow", fmt_usd(m["net_monthly"]), "#4ade80" if m["net_monthly"] >= 0 else "#f87171"),
+        (c2, "Annual Cash Flow", fmt_usd(m["annual_cf"]), "#c8a96e"),
         (c3, "Cash-on-Cash", fmt_pct(m["cash_on_cash"]), "#818cf8"),
         (c4, "Cap Rate", fmt_pct(m["cap_rate"]), "#34d399"),
         (c5, "10-Yr IRR", fmt_pct(m["irr"]), "#22d3ee"),
@@ -255,7 +226,6 @@ with tab1:
     st.markdown("---")
     col_radar, col_breakdown = st.columns(2)
 
-    # Radar chart
     with col_radar:
         st.markdown("**Investment Health Radar**")
         categories = ["Cash Flow", "Cap Rate", "IRR", "CoC Return", "Equity Build"]
@@ -287,7 +257,6 @@ with tab1:
         )
         st.plotly_chart(fig_radar, use_container_width=True)
 
-    # Financial breakdown
     with col_breakdown:
         st.markdown("**Monthly Cash Flow Breakdown**")
         eff_rent = rent * (1 - vacancy)
@@ -296,8 +265,7 @@ with tab1:
             "Amount ($)": [round(eff_rent), -round(expenses), -round(m["mortgage"]), round(m["net_monthly"])],
         }
         df_b = pd.DataFrame(breakdown_data)
-        colors_b = ["#34d399", "#f87171", "#f472b6",
-                    "#4ade80" if m["net_monthly"] >= 0 else "#f87171"]
+        colors_b = ["#34d399", "#f87171", "#f472b6", "#4ade80" if m["net_monthly"] >= 0 else "#f87171"]
         fig_break = go.Figure(go.Bar(
             x=df_b["Amount ($)"],
             y=df_b["Item"],
@@ -307,11 +275,9 @@ with tab1:
             textposition="outside",
             textfont_color="#888",
         ))
-        fig_break.update_layout(**PLOT_LAYOUT, height=340,
-                                xaxis_title="Amount ($)", yaxis_title="")
+        fig_break.update_layout(**PLOT_LAYOUT, height=340, xaxis_title="Amount ($)", yaxis_title="")
         st.plotly_chart(fig_break, use_container_width=True)
 
-    # ─── AI Analysis ─────────────────────────────────────────────────────────
     st.markdown("---")
     st.markdown("### 🤖 AI Investment Advisor")
     if not api_key:
@@ -334,22 +300,17 @@ Provide: 1) Investment attractiveness 2) Key risks 3) Whether to buy/pass and wh
 
             with st.spinner("Analyzing investment..."):
                 response = client.messages.create(
-                    model="claude-sonnet-4-20250514",
+                    model="claude-3-5-sonnet-20241022",
                     max_tokens=1000,
                     messages=[{"role": "user", "content": prompt}]
                 )
                 insight = response.content[0].text
-
             st.markdown(f'<div class="ai-panel">{insight}</div>', unsafe_allow_html=True)
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 2 — PROJECTIONS
-# ══════════════════════════════════════════════════════════════════════════════
 with tab2:
     proj = m["projection"]
     df_proj = pd.DataFrame(proj)
 
-    # Property value + equity
     fig_val = go.Figure()
     fig_val.add_trace(go.Scatter(
         x=df_proj["Year"], y=df_proj["Property Value"],
@@ -363,8 +324,7 @@ with tab2:
         line=dict(color="#818cf8", width=2.5),
         name="Equity",
     ))
-    fig_val.update_layout(**PLOT_LAYOUT, title="Property Value & Equity Growth (10 Years)", height=320,
-                          yaxis_tickprefix="$", yaxis_tickformat=",")
+    fig_val.update_layout(**PLOT_LAYOUT, title="Property Value & Equity Growth (10 Years)", height=320, yaxis_tickprefix="$", yaxis_tickformat=",")
     st.plotly_chart(fig_val, use_container_width=True)
 
     col_cf, col_rent = st.columns(2)
@@ -374,8 +334,7 @@ with tab2:
             marker_color=["#4ade80" if v >= 0 else "#f87171" for v in df_proj["Annual Cash Flow"][1:]],
             marker_line_width=0,
         ))
-        fig_cf.update_layout(**PLOT_LAYOUT, title="Annual Cash Flow Projection", height=280,
-                             yaxis_tickprefix="$", yaxis_tickformat=",")
+        fig_cf.update_layout(**PLOT_LAYOUT, title="Annual Cash Flow Projection", height=280, yaxis_tickprefix="$", yaxis_tickformat=",")
         st.plotly_chart(fig_cf, use_container_width=True)
 
     with col_rent:
@@ -384,8 +343,7 @@ with tab2:
             marker_color="#34d399",
             marker_line_width=0,
         ))
-        fig_rent.update_layout(**PLOT_LAYOUT, title="Annual Rental Income Growth", height=280,
-                               yaxis_tickprefix="$", yaxis_tickformat=",")
+        fig_rent.update_layout(**PLOT_LAYOUT, title="Annual Rental Income Growth", height=280, yaxis_tickprefix="$", yaxis_tickformat=",")
         st.plotly_chart(fig_rent, use_container_width=True)
 
     st.markdown("**Year-by-Year Breakdown**")
@@ -394,9 +352,6 @@ with tab2:
         df_display[col] = df_display[col].apply(lambda v: f"${v:,.0f}")
     st.dataframe(df_display, use_container_width=True, hide_index=True)
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 3 — SCENARIOS
-# ══════════════════════════════════════════════════════════════════════════════
 with tab3:
     SCENARIOS = {
         "🚀 Bull Case": {"appreciation": 0.07, "vacancy_rate": 0.02, "rate": 0.065},
@@ -407,11 +362,9 @@ with tab3:
 
     scenario_results = {}
     for name, ov in SCENARIOS.items():
-        sm = calc_metrics(price, down_pct, ov["rate"], years, rent, expenses,
-                          ov["appreciation"], ov["vacancy_rate"])
+        sm = calc_metrics(price, down_pct, ov["rate"], years, rent, expenses, ov["appreciation"], ov["vacancy_rate"])
         scenario_results[name] = sm
 
-    # Cards
     cols = st.columns(3)
     for (name, sm), col in zip(scenario_results.items(), cols):
         color = SCENARIO_COLORS[name]
@@ -419,15 +372,12 @@ with tab3:
             st.markdown(f'<div style="color:{color};font-size:18px;font-weight:700;margin-bottom:8px">{name}</div>', unsafe_allow_html=True)
             data = {
                 "Metric": ["Annual Cash Flow", "Cap Rate", "Cash-on-Cash", "10-Yr IRR", "Monthly P&L"],
-                "Value": [fmt_usd(sm["annual_cf"]), fmt_pct(sm["cap_rate"]),
-                          fmt_pct(sm["cash_on_cash"]), fmt_pct(sm["irr"]),
-                          fmt_usd(sm["net_monthly"])],
+                "Value": [fmt_usd(sm["annual_cf"]), fmt_pct(sm["cap_rate"]), fmt_pct(sm["cash_on_cash"]), fmt_pct(sm["irr"]), fmt_usd(sm["net_monthly"])],
             }
             st.dataframe(pd.DataFrame(data), use_container_width=True, hide_index=True)
 
     st.markdown("---")
 
-    # Comparison charts
     names = list(scenario_results.keys())
     annual_cfs = [scenario_results[n]["annual_cf"] for n in names]
     irrs = [scenario_results[n]["irr"] * 100 for n in names]
@@ -442,21 +392,16 @@ with tab3:
             text=[fmt_usd(v) for v in annual_cfs], textposition="outside",
             textfont_color="#888",
         ))
-        fig_s1.update_layout(**PLOT_LAYOUT, title="Annual Cash Flow by Scenario",
-                             yaxis_tickprefix="$", yaxis_tickformat=",", height=320)
+        fig_s1.update_layout(**PLOT_LAYOUT, title="Annual Cash Flow by Scenario", yaxis_tickprefix="$", yaxis_tickformat=",", height=320)
         st.plotly_chart(fig_s1, use_container_width=True)
 
     with col_cmp2:
         fig_s2 = go.Figure()
         fig_s2.add_trace(go.Bar(x=names, y=irrs, name="IRR %", marker_color="#22d3ee"))
         fig_s2.add_trace(go.Bar(x=names, y=cocs, name="CoC Return %", marker_color="#818cf8"))
-        fig_s2.update_layout(**PLOT_LAYOUT, title="IRR vs Cash-on-Cash by Scenario",
-                             barmode="group", yaxis_ticksuffix="%", height=320)
+        fig_s2.update_layout(**PLOT_LAYOUT, title="IRR vs Cash-on-Cash by Scenario", barmode="group", yaxis_ticksuffix="%", height=320)
         st.plotly_chart(fig_s2, use_container_width=True)
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 4 — PORTFOLIO
-# ══════════════════════════════════════════════════════════════════════════════
 with tab4:
     PORTFOLIO = [
         {"name": "Downtown Condo",   "price": 420000, "rent": 2800, "expenses": 650,  "down_pct": 0.20, "rate": 0.070, "appreciation": 0.045, "vacancy": 0.04, "years": 30},
@@ -466,8 +411,7 @@ with tab4:
 
     portfolio_rows = []
     for p in PORTFOLIO:
-        pm = calc_metrics(p["price"], p["down_pct"], p["rate"], p["years"],
-                          p["rent"], p["expenses"], p["appreciation"], p["vacancy"])
+        pm = calc_metrics(p["price"], p["down_pct"], p["rate"], p["years"], p["rent"], p["expenses"], p["appreciation"], p["vacancy"])
         portfolio_rows.append({
             "Property": p["name"],
             "Price": fmt_usd(p["price"]),
@@ -485,7 +429,6 @@ with tab4:
     total_cf = sum(r["_annual_cf"] for r in portfolio_rows)
     avg_irr = sum(r["_irr"] for r in portfolio_rows) / len(portfolio_rows)
 
-    # Summary stats
     c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown(f"""<div class="metric-card">
@@ -507,12 +450,10 @@ with tab4:
             <div class="metric-sub">10-year horizon</div>
         </div>""", unsafe_allow_html=True)
 
-    # Table
     st.markdown("**Portfolio Holdings**")
     df_port = pd.DataFrame([{k: v for k, v in r.items() if not k.startswith("_")} for r in portfolio_rows])
     st.dataframe(df_port, use_container_width=True, hide_index=True)
 
-    # Charts
     names_p = [r["Property"] for r in portfolio_rows]
     cfs_p = [r["_annual_cf"] for r in portfolio_rows]
     irrs_p = [r["_irr"] * 100 for r in portfolio_rows]
@@ -524,8 +465,7 @@ with tab4:
             marker_color=["#4ade80" if v >= 0 else "#f87171" for v in cfs_p],
             marker_line_width=0,
         ))
-        fig_p1.update_layout(**PLOT_LAYOUT, title="Annual Cash Flow by Property",
-                             yaxis_tickprefix="$", yaxis_tickformat=",", height=300)
+        fig_p1.update_layout(**PLOT_LAYOUT, title="Annual Cash Flow by Property", yaxis_tickprefix="$", yaxis_tickformat=",", height=300)
         st.plotly_chart(fig_p1, use_container_width=True)
 
     with col_p2:
@@ -536,11 +476,9 @@ with tab4:
             text=[f"{v:.1f}%" for v in irrs_p],
             textposition="outside", textfont_color="#888",
         ))
-        fig_p2.update_layout(**PLOT_LAYOUT, title="10-Year IRR by Property",
-                             yaxis_ticksuffix="%", height=300)
+        fig_p2.update_layout(**PLOT_LAYOUT, title="10-Year IRR by Property", yaxis_ticksuffix="%", height=300)
         st.plotly_chart(fig_p2, use_container_width=True)
 
-    # AI Portfolio Analysis
     st.markdown("---")
     st.markdown("### 🤖 AI Portfolio Strategy Review")
     if not api_key:
@@ -564,15 +502,13 @@ Which properties to hold, sell, or expand? What's the portfolio's overall health
 
             with st.spinner("Analyzing portfolio..."):
                 response = client.messages.create(
-                    model="claude-sonnet-4-20250514",
+                    model="claude-3-5-sonnet-20241022",
                     max_tokens=1000,
                     messages=[{"role": "user", "content": prompt}]
                 )
                 portfolio_insight = response.content[0].text
-
             st.markdown(f'<div class="ai-panel">{portfolio_insight}</div>', unsafe_allow_html=True)
 
-# ─── Footer ───────────────────────────────────────────────────────────────────
 st.markdown("---")
 st.markdown(
     '<div style="color:#333;font-size:11px;text-align:center;letter-spacing:0.08em">'
