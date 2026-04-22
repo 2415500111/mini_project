@@ -53,7 +53,7 @@ Real-Estate-Analysis/
 └── README.md              # Project documentation
 ⚙️ Installation & Setup
 # Clone the repository
-git clone https://github.com/your-username/real-estate-analysis.git
+(https://github.com/2415500111/mini_project)
 
 # Navigate to project folder
 cd real-estate-analysis
