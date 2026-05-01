@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI-powered real estate investment analysis platform with predictive analytics, scenario modeling, and portfolio management.">
+  <title>PROJECT 25 · Real Estate AI Investment Analysis Platform</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏢</text></svg>">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SIDEBAR                                            -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="eyebrow">PROJECT 25 · AI-POWERED</div>
+      <div class="brand-title">Real Estate<br><em>Analysis Platform</em></div>
+    </div>
+
+    <hr class="sidebar-divider">
+
+    <div class="sidebar-section-title">🏠 Property Parameters</div>
+
+    <div class="control-group">
+      <div class="control-label"><span>Purchase Price</span><span class="control-value" id="val-price">$450,000</span></div>
+      <input type="range" id="slider-price" min="100000" max="2000000" value="450000" step="10000">
+    </div>
+    <div class="control-group">
+      <div class="control-label"><span>Down Payment</span><span class="control-value" id="val-down">20%</span></div>
+      <input type="range" id="slider-down" min="5" max="50" value="20" step="1">
+    </div>
+    <div class="control-group">
+      <div class="control-label"><span>Mortgage Rate</span><span class="control-value" id="val-rate">7.0%</span></div>
+      <input type="range" id="slider-rate" min="3.0" max="12.0" value="7.0" step="0.25">
+    </div>
+    <div class="control-group">
+      <div class="control-label"><span>Loan Term</span></div>
+      <select class="control-select" id="select-term">
+        <option value="10">10 Years</option>
+        <option value="15">15 Years</option>
+        <option value="20">20 Years</option>
+        <option value="25">25 Years</option>
+        <option value="30" selected>30 Years</option>
+      </select>
+    </div>
+
+    <hr class="sidebar-divider">
+
+    <div class="sidebar-section-title">💰 Income & Expenses</div>
+
+    <div class="control-group">
+      <div class="control-label"><span>Monthly Rent</span><span class="control-value" id="val-rent">$3,200</span></div>
+      <input type="range" id="slider-rent" min="500" max="10000" value="3200" step="50">
+    </div>
+    <div class="control-group">
+      <div class="control-label"><span>Monthly Expenses</span><span class="control-value" id="val-expenses">$800</span></div>
+      <input type="range" id="slider-expenses" min="100" max="3000" value="800" step="50">
+    </div>
+    <div class="control-group">
+      <div class="control-label"><span>Vacancy Rate</span><span class="control-value" id="val-vacancy">5%</span></div>
+      <input type="range" id="slider-vacancy" min="0" max="30" value="5" step="1">
+    </div>
+    <div class="control-group">
+      <div class="control-label"><span>Annual Appreciation</span><span class="control-value" id="val-appreciation">4.0%</span></div>
+      <input type="range" id="slider-appreciation" min="0.0" max="12.0" value="4.0" step="0.5">
+    </div>
+
+    <hr class="sidebar-divider">
+
+    <div class="sidebar-section-title">🔑 AI Configuration</div>
+    <div class="control-group">
+      <input type="password" class="api-key-input" id="api-key-input" placeholder="Anthropic API Key (for AI features)">
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- MAIN CONTENT                                       -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <div class="eyebrow">PROJECT 25 · AI-POWERED PLATFORM</div>
+        <h1>Real Estate Investment Analysis Tool</h1>
+      </div>
+      <div class="score-box">
+        <div class="score-label">Investment Score</div>
+        <div class="score-value" id="score-value">—</div>
+        <div class="score-max">/100</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="tab-analysis">📊 Analysis</button>
+      <button class="tab-btn" data-tab="tab-projections">📈 Projections</button>
+      <button class="tab-btn" data-tab="tab-scenarios">⚡ Scenarios</button>
+      <button class="tab-btn" data-tab="tab-portfolio">🏦 Portfolio</button>
+    </nav>
+
+    <!-- ─── TAB 1: Analysis ─────────────────────────── -->
+    <section class="tab-panel active" id="tab-analysis">
+      <div class="metrics-grid">
+        <div class="metric-card" id="mc-cashflow" style="--card-accent: var(--green)"><div class="metric-label">Monthly Cash Flow</div><div class="metric-value">—</div></div>
+        <div class="metric-card" id="mc-annual" style="--card-accent: var(--gold)"><div class="metric-label">Annual Cash Flow</div><div class="metric-value">—</div></div>
+        <div class="metric-card" id="mc-coc" style="--card-accent: var(--purple)"><div class="metric-label">Cash-on-Cash</div><div class="metric-value">—</div></div>
+        <div class="metric-card" id="mc-cap" style="--card-accent: var(--emerald)"><div class="metric-label">Cap Rate</div><div class="metric-value">—</div></div>
+        <div class="metric-card" id="mc-irr" style="--card-accent: var(--teal)"><div class="metric-label">10-Yr IRR</div><div class="metric-value">—</div></div>
+        <div class="metric-card" id="mc-mortgage" style="--card-accent: var(--pink)"><div class="metric-label">Monthly Mortgage</div><div class="metric-value">—</div></div>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-container">
+          <div class="chart-title">Investment Health Radar</div>
+          <div class="chart-canvas-wrap"><canvas id="chart-radar"></canvas></div>
+        </div>
+        <div class="chart-container">
+          <div class="chart-title">Monthly Cash Flow Breakdown</div>
+          <div class="chart-canvas-wrap"><canvas id="chart-breakdown"></canvas></div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="ai-section-title">🤖 AI Investment Advisor</div>
+      <div id="ai-analysis-area">
+        <button class="ai-btn" id="btn-ai-analyze" onclick="triggerAIAnalysis()">Generate AI Investment Analysis</button>
+        <div id="ai-analysis-result"></div>
+      </div>
+    </section>
+
+    <!-- ─── TAB 2: Projections ──────────────────────── -->
+    <section class="tab-panel" id="tab-projections">
+      <div class="chart-container" style="margin-bottom:24px">
+        <div class="chart-title">Property Value & Equity Growth (10 Years)</div>
+        <div class="chart-canvas-wrap"><canvas id="chart-value-equity"></canvas></div>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-container">
+          <div class="chart-title">Annual Cash Flow Projection</div>
+          <div class="chart-canvas-wrap"><canvas id="chart-annual-cf"></canvas></div>
+        </div>
+        <div class="chart-container">
+          <div class="chart-title">Annual Rental Income Growth</div>
+          <div class="chart-canvas-wrap"><canvas id="chart-rental-income"></canvas></div>
+        </div>
+      </div>
+
+      <div class="data-table-wrap">
+        <div class="table-title">Year-by-Year Breakdown</div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Year</th><th>Property Value</th><th>Equity</th><th>Annual Cash Flow</th><th>Rental Income</th></tr>
+          </thead>
+          <tbody id="projection-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ─── TAB 3: Scenarios ────────────────────────── -->
+    <section class="tab-panel" id="tab-scenarios">
+      <div class="scenarios-grid" id="scenarios-cards">
+        <div class="scenario-card"><div class="scenario-name" style="color:var(--text-dim)">Loading scenarios...</div></div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="charts-row">
+        <div class="chart-container">
+          <div class="chart-title">Annual Cash Flow by Scenario</div>
+          <div class="chart-canvas-wrap"><canvas id="chart-scenario-cf"></canvas></div>
+        </div>
+        <div class="chart-container">
+          <div class="chart-title">IRR vs Cash-on-Cash by Scenario</div>
+          <div class="chart-canvas-wrap"><canvas id="chart-scenario-irr"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TAB 4: Portfolio ────────────────────────── -->
+    <section class="tab-panel" id="tab-portfolio">
+      <div class="metrics-grid" id="portfolio-summary" style="grid-template-columns: repeat(3, 1fr)">
+        <div class="metric-card"><div class="metric-label">Loading...</div><div class="metric-value">—</div></div>
+      </div>
+
+      <div class="data-table-wrap">
+        <div class="table-title">Portfolio Holdings</div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Property</th><th>Price</th><th>Equity Down</th><th>Monthly CF</th><th>Cap Rate</th><th>CoC Return</th><th>IRR</th></tr>
+          </thead>
+          <tbody id="portfolio-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-container">
+          <div class="chart-title">Annual Cash Flow by Property</div>
+          <div class="chart-canvas-wrap"><canvas id="chart-portfolio-cf"></canvas></div>
+        </div>
+        <div class="chart-container">
+          <div class="chart-title">10-Year IRR by Property</div>
+          <div class="chart-canvas-wrap"><canvas id="chart-portfolio-irr"></canvas></div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="ai-section-title">🤖 AI Portfolio Strategy Review</div>
+      <div id="ai-portfolio-area">
+        <button class="ai-btn" id="btn-ai-portfolio" onclick="triggerAIPortfolio()">Generate Portfolio Strategy Analysis</button>
+        <div id="ai-portfolio-result"></div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="footer">
+      PROJECT 25 · REAL ESTATE INVESTMENT ANALYSIS PLATFORM · POWERED BY NODE.JS + ANTHROPIC
+    </div>
+
+  </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
